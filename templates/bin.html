@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Recycle Bin - Yu Do{% endblock %}
+
+{% block content %}
+<section class="workspace-section">
+    <header class="app-header">
+        <div class="header-top">
+            <h2 class="workspace-title">Recycle Bin</h2>
+            <div class="header-controls">
+                <a href="#" onclick="history.back(); return false;" class="nav-item-vertical" title="Back">
+                    <i data-lucide="arrow-left"></i>
+                    <span class="nav-label">Back</span>
+                </a>
+            </div>
+        </div>
+        <p style="text-align: center; color: var(--text-tertiary); margin-bottom: 2rem;">Restore items or delete them
+            forever.</p>
+    </header>
+
+    <!-- Bin Grid (Matches My Space .notes-grid) -->
+    <div class="notes-grid" id="notesGrid">
+        {% if items %}
+        {% for item in items %}
+        <div class="card deleted-card" data-id="{{ item.id }}">
+            <div class="deleted-badge">Deleted</div>
+
+            {% if item.media %}
+            <div class="card-media">
+                {% for m in item.media %}
+                <div class="media-item">
+                    {% if m.type == 'image' %}
+                    <img src="{{ m.url }}" alt="Attachment" loading="lazy">
+                    {% elif m.type == 'video' %}
+                    <div class="video-container">
+                        <iframe src="{{ m.url }}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card-content">
+                <h3 class="item-title">{{ item.title }}</h3>
+                <div class="item-body">{{ item.content | safe }}</div>
+            </div>
+
+            <div class="card-meta">
+                <span class="created-date">Created on: {{ item.created_at.strftime('%d %b %Y · %I:%M %p') }}</span>
+                {% if item.deleted_at %}
+                <span class="deleted-date" style="color: var(--danger-color); display: block;">
+                    Deleted on: {{ item.deleted_at.strftime('%d %b %Y · %I:%M %p') }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="card-actions">
+                <form action="{{ url_for('restore', item_id=item.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-icon" title="Restore"><i data-lucide="rotate-ccw"></i> <span
+                            class="icon-label">Restore</span></button>
+                </form>
+                <form action="{{ url_for('permanent_delete', item_id=item.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-icon" title="Delete Forever" style="color: #e11d48;"><i
+                            data-lucide="trash-2"></i></button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state"
+            style="text-align: center; width: 100%; margin-top: 4rem; color: var(--text-tertiary);">
+            <i data-lucide="trash-2" size="48" style="opacity: 0.2;"></i>
+            <p>The bin is empty.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Group FABs for Bin Actions -->
+    {% if items %}
+    <div class="bin-fab-group">
+        <form action="{{ url_for('restore_all') }}" method="POST">
+            <button class="fab-action fab-restore" title="Restore All">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Restore All</span>
+            </button>
+        </form>
+        <form action="{{ url_for('erase_all') }}" method="POST"
+            onsubmit="return confirm('Permanently delete everything in the bin?');">
+            <button class="fab-action fab-erase" title="Erase All">
+                <i data-lucide="trash-2"></i>
+                <span>Erase All</span>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Note Detail Modal (Same as Index) -->
+<div id="note-modal-overlay" class="modal-overlay">
+    <div class="modal-content" id="note-modal-content">
+        <button class="btn-close-modal" onclick="closeNoteModal()"><i data-lucide="x"></i></button>
+        <div id="modal-card-container"></div>
+    </div>
+</div>
+{% endblock %}

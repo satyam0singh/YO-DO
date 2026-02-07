@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<!-- Main App Workspace -->
+<section id="app-workspace" class="workspace-section">
+    <header class="app-header">
+        <div class="header-top">
+            <h2 class="workspace-title">My Space</h2>
+            <div class="header-controls">
+                <a href="{{ url_for('view_bin') }}" class="nav-item-vertical" title="Recycle Bin">
+                    <i data-lucide="trash-2"></i>
+                    <span class="nav-label">Recycle Bin</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="search-input" placeholder="Search your notes..." autocomplete="off">
+        </div>
+
+        <!-- Input Area (New Note) -->
+        <div class="input-area glass-panel">
+            <form action="{{ url_for('add') }}" method="POST" id="addForm">
+                <input type="text" name="title" placeholder="Title" class="input-title" autocomplete="off">
+                <textarea name="content" placeholder="Take a note..." class="input-content"></textarea>
+
+                <!-- Media Preview for New Note -->
+                <div id="new-media-preview-area" class="media-preview-list"></div>
+
+                <div class="form-actions">
+                    <div class="action-left">
+                        <button type="button" class="btn-icon" id="btn-upload-trigger" title="Add Image">
+                            <i data-lucide="image"></i>
+                        </button>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp"
+                            style="display: none;" multiple>
+                    </div>
+                    <input type="hidden" name="media_json" id="media-json">
+
+                    <button type="submit" class="btn-add">Add</button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <main class="notes-grid" id="notesGrid">
+        {% if items %}
+        {% for item in items %}
+        <!-- Single Card Structure (Flat) -->
+        <div class="card item-card {% if item.pinned %}pinned{% endif %}" data-id="{{ item.id }}">
+
+            <!-- Pin Action -->
+            <button class="btn-pin {{ 'active' if item.pinned else '' }}"
+                onclick="togglePin({{ item.id }}, {{ 'false' if item.pinned else 'true' }})"
+                title="{{ 'Unpin' if item.pinned else 'Pin' }}">
+                <i data-lucide="pin" class="{{ 'filled' if item.pinned else '' }}"></i>
+            </button>
+
+            {% if item.media %}
+            <div class="card-media">
+                {% for m in item.media %}
+                <div class="media-item">
+                    {% if m.type == 'image' %}
+                    <img src="{{ m.url }}" alt="Attachment" loading="lazy">
+                    {% elif m.type == 'video' %}
+                    <div class="video-container">
+                        <iframe src="{{ m.url }}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+
+                    <!-- Media Controls -->
+                    <div class="media-overlay">
+                        <button class="btn-media-action btn-remove-media-edit" title="Remove"
+                            data-note-id="{{ item.id }}" data-media-id="{{ m.id }}">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Dynamic Content Visibility -->
+            {% set has_text = item.title or (item.content and item.content | striptags | trim | length > 0) or item.tags
+            %}
+            <div class="card-content {% if not has_text and item.media %}hidden-content{% endif %}">
+                <h3 class="item-title" contenteditable="true" data-field="title">{{ item.title }}</h3>
+                <div class="item-body" contenteditable="true" data-field="content">{{ item.content | safe }}</div>
+                <div class="tags-container">
+                    {% for tag in item.tags %}
+                    <span class="tag-chip" data-id="{{ tag.id }}" onclick="setSearch('{{ tag.name }}', event)">{{
+                        tag.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-meta">
+                <span class="created-date">Created on: {{ item.created_at.strftime('%d %b %Y · %I:%M %p') }}</span>
+            </div>
+
+            <div class="card-actions hover-actions">
+                <button type="button" class="btn-icon" onclick="handleAddText(this, {{ item.id }})" title="Add Text">
+                    <i data-lucide="type"></i>
+                </button>
+                <button type="button" class="btn-icon" onclick="triggerAddImage({{ item.id }})" title="Add Image">
+                    <i data-lucide="image-plus"></i>
+                </button>
+                <form action="{{ url_for('soft_delete', item_id=item.id) }}" method="POST" class="delete-form"
+                    onsubmit="event.preventDefault(); deleteNoteInline(this, {{ item.id }});">
+                    <button type="submit" class="btn-icon btn-delete" title="Delete">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i data-lucide="sparkles" size="64"></i>
+            <p>Your space is empty. Start by adding a task.</p>
+        </div>
+        {% endif %}
+    </main>
+
+    </main>
+</section>
+
+</section>
+
+<!-- Note Detail Modal -->
+<div id="note-modal-overlay" class="modal-overlay">
+    <div class="modal-content" id="note-modal-content">
+        <button class="btn-close-modal" onclick="closeNoteModal()"><i data-lucide="x"></i></button>
+        <div id="modal-card-container"></div>
+
+        <!-- EDITOR TOOLBAR -->
+        <div class="editor-toolbar" id="editor-toolbar">
+            <button data-cmd="bold" title="Bold"><i data-lucide="bold"></i></button>
+            <button data-cmd="italic" title="Italic"><i data-lucide="italic"></i></button>
+            <button data-cmd="underline" title="Underline"><i data-lucide="underline"></i></button>
+            <div style="height: 1px; background: #eee; margin: 4px 6px;"></div>
+            <button id="btn-checklist" title="Checklist"><i data-lucide="check-square"></i></button>
+            <button data-cmd="insertUnorderedList" title="List"><i data-lucide="list"></i></button>
+            <div style="height: 1px; background: #eee; margin: 4px 6px;"></div>
+            <button id="btn-open-drawing" title="Sketch"><i data-lucide="pen-tool"></i></button>
+            <button id="btn-toolbar-image" title="Add Image"><i data-lucide="image"></i></button>
+            <div style="height: 1px; background: #eee; margin: 4px 6px;"></div>
+            <button id="btn-show-tags" title="Tags"><i data-lucide="tag"></i></button>
+        </div>
+
+        <!-- TAG POPOVER -->
+        <div class="tag-popover" id="tag-popover">
+            <input type="text" class="tag-input" id="tag-input" placeholder="Tag name..." autocomplete="off">
+            <div class="tag-suggestions" id="tag-suggestions"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Global Hidden Input for Edit Mode -->
+<input type="file" id="edit-file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" multiple>
+
+<!-- Drawing Canvas Modal (Overlay) -->
+<div id="drawing-modal" class="drawing-modal">
+    <div class="canvas-container">
+        <canvas id="drawing-canvas"></canvas>
+    </div>
+    <div class="drawing-tools">
+        <button class="drawing-tool-btn active" id="tool-pen" title="Pen"><i data-lucide="pen-tool"></i></button>
+        <button class="drawing-tool-btn" id="tool-eraser" title="Eraser"><i data-lucide="eraser"></i></button>
+        <div style="width: 1px; background: #eee; margin: 0 4px;"></div>
+        <button class="drawing-tool-btn btn-save-drawing" id="btn-save-drawing" title="Done"><i
+                data-lucide="check"></i></button>
+        <button class="drawing-tool-btn" onclick="closeDrawingModal()" title="Cancel"><i data-lucide="x"></i></button>
+    </div>
+</div>
+
+<script>
+    function scrollToApp() {
+        document.getElementById('app-workspace').scrollIntoView({ behavior: 'smooth' });
+    }
+    // Inline delete handler
+    function deleteNoteInline(form, id) {
+        if (!confirm('Delete this note?')) return;
+        fetch(form.action, { method: 'POST' })
+            .then(() => {
+                const card = form.closest('.card');
+                if (card) card.remove();
+            });
+    }
+</script>
+{% endblock %}

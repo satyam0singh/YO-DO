@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block body_class %}no-scroll{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section id="hero" class="hero-section">
+    <div class="hero-content-wrapper">
+        <!-- Yu Do Logo Lockup -->
+        <h1 class="yudo-logo">
+            <span class="word-yu">YU-</span>
+            <span class="word-do">DO</span>
+        </h1>
+        <p class="hero-subtitle">Plan less. Finish more.</p>
+        <p class="hero-summary">A focused to-do workspace to capture, organize, and complete what matters.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('login') }}" class="btn-primary" style="text-decoration:none;">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn-secondary" style="text-decoration:none;">See how it works</a>
+        </div>
+
+        <div class="scroll-indicator">
+            <!-- Hidden on landing page effectively since there's nowhere to scroll -->
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yu Do - Plan less. Finish more.{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=premium-16">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="app-container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if not current_user.is_authenticated %}
+    <footer class="branding-footer">
+        <p>Made by <strong>Satyam Singh</strong></p>
+        <a href="https://linkedin.com/in/satyam-singh-41b695294" target="_blank" rel="noopener noreferrer"
+            class="btn-connect-me">
+            Connect With Me
+        </a>
+    </footer>
+    {% else %}
+    <a href="{{ url_for('logout') }}" class="fixed-logout" title="Log Out">
+        <i data-lucide="log-out"></i>
+        <span>Logout</span>
+    </a>
+    {% endif %}
+
+    <!-- Core Background & Icons -->
+    <script src="{{ url_for('static', filename='script.js') }}?v=restore-v8"></script>
+
+    <!-- App Modules -->
+    <script src="{{ url_for('static', filename='popup.js') }}?v=restore-v8"></script>
+    <script src="{{ url_for('static', filename='media.js') }}?v=restore-v8"></script>
+    <script src="{{ url_for('static', filename='editor.js') }}?v=restore-v8"></script>
+    <script src="{{ url_for('static', filename='toolbarController.js') }}?v=restore-v8"></script>
+    <script src="{{ url_for('static', filename='drawingCanvas.js') }}?v=restore-v8"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

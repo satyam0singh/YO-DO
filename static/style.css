@@ -1,0 +1,1897 @@
+:root {
+    /* Premium Palette - "Warm Stone" & "Deep Ink" */
+    --bg-color: #fafaf9; /* Stone 50 - Warmer than gray */
+    --surface-color: #ffffff;
+    --border-color: #e7e5e4; /* Stone 200 */
+    
+    --text-primary: #1c1917; /* Stone 900 - Warm Black */
+    --text-secondary: #57534e; /* Stone 600 */
+    --text-tertiary: #a8a29e; /* Stone 400 */
+    
+    --hover-bg: #f5f5f4; /* Stone 100 */
+    
+    /* Vibrant Accents (Apple Notes Vibe) */
+    --accent-color: #f59e0b; /* Amber 500 */
+    --accent-light: #fef3c7; /* Amber 100 */
+
+    --shadow-sm: 0 1px 3px 0 rgba(28, 25, 23, 0.05); /* Warm shadow */
+    --shadow-md: 0 4px 6px -1px rgba(28, 25, 23, 0.05), 0 2px 4px -1px rgba(28, 25, 23, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(28, 25, 23, 0.05), 0 4px 6px -2px rgba(28, 25, 23, 0.02);
+    
+    --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; /* Try Outfit if available, else Inter */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.5;
+}
+
+/* Generative Background */
+#bg-canvas {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    z-index: -1; 
+    pointer-events: none; /* Let clicks pass through */
+}
+
+/* App Container */
+.app-container {
+    width: 100%;
+    /* Ensure footer doesn't overlap content */
+    padding-bottom: 5rem; 
+    position: relative;
+    z-index: 1;
+}
+
+/* Hero Section - Flexbox Centering */
+.hero-section {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    width: 100%;
+}
+.hero-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* YU DO Logo Lockup */
+.yudo-logo {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #000;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Logo Check styles removed */
+
+/* Save Indicator */
+.save-indicator {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.save-indicator.saving { opacity: 1; color: var(--text-tertiary); }
+.save-indicator.saved { opacity: 1; color: #10b981; /* Green */ }
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 600; /* Semi-bold */
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.hero-summary {
+    font-size: 1rem;
+    color: var(--text-tertiary);
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-actions { display: flex; gap: 1rem; justify-content: center; }
+.btn-primary {
+    background: #000;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+.btn-secondary {
+    background: white;
+    color: #000;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.btn-secondary:hover { background: var(--hover-bg); }
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%; /* Center relative to Hero */
+    transform: translateX(-50%);
+    opacity: 0.5;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translate(-50%, 0);}
+    40% {transform: translate(-50%, -10px);}
+    60% {transform: translate(-50%, -5px);}
+}
+
+/* Workspace Section */
+.workspace-section { 
+    min-height: 100vh; 
+    padding-top: 4rem; 
+    position: relative; 
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+.app-header { margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.workspace-title { font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--hover-bg);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.nav-item-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--text-tertiary); /* Muted initially */
+    font-size: 0.5rem;
+    font-weight: 500;
+    transition: color 0.2s, transform 0.2s;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+.nav-item-vertical i { width: 20px; height: 20px; }
+.nav-item-vertical:hover {
+    color: var(--text-primary); /* Dark on hover */
+    background: var(--hover-bg);
+}
+.search-bar:focus-within { border-color: #ddd; background: white; }
+.search-icon { color: var(--text-tertiary); width: 18px; height: 18px; margin-right: 0.5rem; }
+#search-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.95rem;
+    outline: none;
+    color: var(--text-primary);
+}
+
+.glass-panel {
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    transition: box-shadow 0.2s ease;
+}
+.glass-panel:focus-within { box-shadow: var(--shadow-md); }
+
+/* Input Fields */
+#addForm { display: flex; flex-direction: column; gap: 0.5rem; }
+.input-title {
+    background: transparent; border: none; font-size: 1.1rem; font-weight: 600; color: var(--text-primary); outline: none; padding: 0.25rem 0;
+}
+.input-content {
+    background: transparent; border: none; font-family: var(--font-main); font-size: 1rem; color: var(--text-secondary); outline: none; resize: none; min-height: 24px;
+}
+.form-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem;}
+.btn-add {
+    background: transparent; color: var(--text-primary); border: 1px solid transparent; padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-add:hover { background: var(--hover-bg); }
+
+/* Notes Grid (Masonry Base) */
+.notes-grid {
+    display: grid;
+    /* Optimized: 250px allows 3 columns on standard tablets/small laptops */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-auto-rows: 10px; /* Fine-grained rows for span calc */
+    gap: 20px; /* Slightly tighter gap */
+    width: 100%;
+    padding-bottom: 4rem;
+}
+
+.empty-state {
+    grid-column: 1 / -1; /* Span all columns */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    color: var(--text-tertiary);
+    gap: 1rem;
+    text-align: center;
+}
+.empty-state p { font-size: 1.1rem; }
+
+/* Card Lock - Utility Aesthetics */
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 1rem; /* Compact padding */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    cursor: auto; /* Default */
+}
+/* Smart Click Cursors */
+.card:not(.modal-expanded) {
+    cursor: pointer; /* Implies "Open" */
+}
+.card:not(.modal-expanded) .item-title,
+.card:not(.modal-expanded) .item-body {
+    cursor: text; /* Implies "Edit" */
+}
+/* Modal Card is not clickable to expand (already expanded) */
+.modal-expanded {
+    cursor: default;
+}
+
+/* Logic: Hide empty Title/Body to save space */
+.item-title:empty,
+.item-body:empty {
+    display: none;
+}
+
+/* Dynamic Placeholder Logic */
+.hidden-content {
+    display: none !important;
+}
+
+/* Logic: If user clicks "Add Text", we force them to show (via JS class on wrapper) */
+.card-content.force-show .item-title,
+.card-content.force-show .item-body {
+    display: block;
+    min-height: 1.2em; /* Ensure visible when empty so user can type */
+}
+
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #a3a3a3;
+    transform: translateY(-2px);
+    z-index: 10;
+}
+.item-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #111;
+    letter-spacing: -0.01em;
+    outline: none;
+    line-height: 1.3;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+.item-body {
+    color: #444;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    outline: none;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    
+    /* Truncation Logic for Grid View */
+    max-height: 200px; /* ~8-10 lines */
+    overflow: hidden;
+    position: relative;
+    /* Fade out effect at bottom */
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+/* Modal View: Show Full Text */
+.modal-expanded .item-body {
+    max-height: none;
+    overflow: visible;
+    mask-image: none;
+    -webkit-mask-image: none;
+}
+
+/* Media & Controls */
+.media-item { position: relative; border-radius: 8px; overflow: hidden; margin-bottom: 0.5rem; }
+.card-media img { width: 100%; display: block; }
+.media-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    /* Subtle gradient for visibility without blocking view */
+    background: rgba(0,0,0,0.1);
+    opacity: 0; transition: opacity 0.2s ease;
+    pointer-events: none; /* Let clicks pass unless on button */
+}
+.media-item:hover .media-overlay { opacity: 1; }
+
+.btn-media-action { pointer-events: auto; }
+
+/* Specific vNext.2 Remove Button Style */
+.btn-remove-media-edit {
+    position: absolute;
+    bottom: 6px; /* Moved to Bottom Right to prevent overlap with Close Button */
+    right: 6px;
+    top: auto;   /* Unset top */
+    left: auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0,0,0,0.1);
+    font-size: 14px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, background 0.2s;
+}
+.btn-remove-media-edit:hover {
+    background: #fff;
+    color: #e11d48; /* Subtle danger color on hover */
+    transform: scale(1.1);
+}
+
+#new-media-preview-area img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid var(--border-color); }
+
+/* Meta Data - Compact */
+.card-meta {
+    margin-top: 0.25rem; /* Tighter */
+    font-size: 0.8rem;   /* Slightly bumped up */
+    color: #444;         /* Darker/Denser grey */
+    font-weight: 500;    /* Increased grain density */
+}
+
+/* Actions - Absolute to remove flow gap */
+.card-actions {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(255,255,255,0.9); /* Backdrop just in case */
+    border-radius: 4px;
+}
+.card:hover .card-actions { opacity: 1; }
+.btn-icon { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; padding: 4px; border-radius: 4px;}
+.btn-icon:hover { color: var(--text-primary); background: var(--hover-bg); }
+.icon-label { margin-left: 0.5rem; font-size: 0.9rem; }
+
+/* Pin Action Style */
+.btn-pin {
+    position: absolute;
+    right: 40px; /* Left of the Remove Button if present, or right corner */
+    /* Wait, Remove Button is top-right for media. Pin is for Card. */
+    /* Let's put Pin top-right of Card, and Remove Button top-right of Media Item. */
+    /* Note Card has padding. Pin should be absolute top-right of card content? */
+    /* Or better: Top-Right of the card itself. */
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+/* Move Pin to top-right of .card. Note .card has padding: 1.25rem */
+.btn-pin {
+    top: 10px;
+    right: 10px;
+}
+.btn-pin:hover {
+    background: var(--hover-bg);
+    color: #666;
+}
+.btn-pin.active {
+    color: #000;
+    /* Filled icon style? Lucide icons are strokes. We can fill or just use dark bold. */
+    background: #f0f0f0;
+    border-color: #ddd; 
+}
+.card.pinned {
+    border-color: #333; /* Subtle indicators */
+    box-shadow: var(--shadow-md);
+}
+/* Media Remove Button */
+
+/* Ensure it doesn't conflict with Pin if media is at top? */
+/* Media items have their own container. Button is inside that. */
+/* So no conflict. */
+
+/* --- Media Truncation (Grid View) --- */
+/* Hide 3rd and subsequent media items in GRID ONLY */
+#notesGrid .card .media-item:nth-child(n+3) {
+    display: none;
+}
+/* "+X More" Badge Overlay */
+.more-media-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* Let clicks pass to expand */
+    backdrop-filter: blur(2px);
+    z-index: 5;
+}
+
+/* --- Note Modal (Side Drawer) --- */
+/* --- Modal Note View (Centered) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Premium Glassmorphism */
+    background: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out; /* Fast fade 120-180ms range */
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-content {
+    background: #ffffff;
+    width: fit-content;      
+    min-width: 600px;       
+    max-width: 90vw;        
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    position: relative;
+    padding: 0;             
+    overflow: visible;       
+    
+    /* Cinematic Entry Spring - Tuned to 0.96 */
+    transform: scale(0.96) translateY(8px);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); /* Quick spring */
+    
+    display: flex;
+    flex-direction: column;
+}
+.modal-overlay.active .modal-content { 
+    transform: scale(1) translateY(0); 
+}
+
+/* Remove slide logic, use pop logic above */
+
+.modal-content::-webkit-scrollbar { display: none; }
+
+.btn-close-modal {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    z-index: 50; /* Above images */
+    display: flex; align-items: center; justify-content: center;
+    color: #555;
+    transition: all 0.2s;
+}
+.btn-close-modal:hover { background: #fff; transform: rotate(90deg); color: #000; }
+
+/* Modal Card Overrides & Split Layout */
+/* Modal Card Container Structure */
+#modal-card-container .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+/* -- Split Layout Logic -- */
+
+/* Default: Single Column (Text Only) */
+/* Default: Single Column (Text Only) */
+#modal-card-container .card {
+    display: block;
+    padding: 2.5rem;
+    max-width: 800px; /* Constrain text readability */
+    margin: 0 auto;
+    
+    /* Invisible Functional Scrolling */
+    max-height: 80vh; 
+    overflow-y: auto; 
+    
+    /* Hide scrollbar for Chrome/Safari */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+#modal-card-container .card::-webkit-scrollbar { 
+    display: none; /* Chrome/Safari */
+}
+
+/* Split View: When Media is Present AND text is present */
+/* We'll use a specific logic: if .has-media is preserved, we target that */
+#modal-card-container .card.has-media {
+    display: flex;
+    flex-direction: row; /* Side by Side */
+    padding: 0; /* Full bleed */
+    width: 100%;
+    min-width: 60vw; /* Reduced from 80vw to remove "extra space" white areas */
+    max-width: 1000px;
+    height: 70vh; /* Fixed height for split scrolling */
+    overflow: hidden; /* Parent clips children */
+}
+
+/* Right Column Wrapper */
+.card-right-column {
+    flex: 1; /* Take remaining 50% */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto; /* Independent scroll */
+    padding: 0;
+    
+    /* Scrollbar hiding */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.card-right-column::-webkit-scrollbar { display: none; }
+
+/* Images Section (First Half) */
+/* Images Section (First Half) */
+#modal-card-container .card.has-media .card-media {
+    flex: 1; /* Take 50% */
+    background: #fafafa;
+    padding: 1rem; /* Reduced padding for cleaner fit */
+    overflow-y: auto; /* Independent Scroll */
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Increased gap for clear separation */
+    height: 100%; /* Fill parent */
+
+    min-height: 0; /* Flexbox Scroll Fix */
+    min-height: 0; /* Flexbox Scroll Fix */
+    
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+
+/* --- NUCLEAR SCROLLBAR FIX 2.0 --- */
+/* Target the containers themselves, not just children */
+.modal-content::-webkit-scrollbar,
+#modal-card-container::-webkit-scrollbar,
+#modal-card-container *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    -webkit-appearance: none !important;
+}
+#modal-card-container * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+#modal-card-container .card.has-media .card-media::-webkit-scrollbar { 
+    display: none !important; /* Chrome/Safari */
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+}
+
+/* Text Section (Second Half) */
+/* Text Section (Reset for Right Column) */
+#modal-card-container .card.has-media .card-content {
+    flex: initial;
+    padding: 0; 
+    overflow-y: visible;
+    display: block;
+    height: auto;
+}
+
+/* Split View Layout Fix (Right Column Wrapper) */
+.card-right-column {
+    flex: 1; /* Takes 50% width */
+    padding: 20px;
+    padding-top: 40px; /* Space for close button */
+    overflow-y: auto;
+    max-height: 85vh; /* Allow scrolling */
+    display: flex; /* For centering or column layout */
+    flex-direction: column;
+
+    /* Hide Scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.card-right-column::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+}
+.modal-content::-webkit-scrollbar { display: none; }
+
+/* Adjustments for text and title in modal */
+#modal-card-container .item-title {
+    font-size: 2.5rem; /* Massive Impact */
+    margin-bottom: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em; /* Tight & Clean */
+    font-weight: 800; /* Extra Bold */
+    color: #111;
+    padding-top: 1rem; 
+}
+#modal-card-container .item-body {
+    font-size: 1.15rem; /* Larger Body */
+    color: #333;
+    line-height: 1.6;
+    flex: 1; 
+}
+
+/* Modal Meta (Footer) - Ensure it sticks to bottom */
+/* Modal Meta (Footer) - Sleek Small Caps */
+#modal-card-container .card-meta {
+    margin-top: auto !important;
+    padding: 2rem 0 0 0 !important; /* Space for meta */
+    border-top: 1px solid rgba(0,0,0,0.05); /* Subtle separator */
+    color: #999;
+    font-size: 0.75rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* Modal Media Items */
+/* Modal Media Items (Left Column / Preview Area) */
+/* MEDIA CONTAINER — PROFESSIONAL (Plan C) */
+#modal-card-container .media-item {
+    width: 100%;
+    /* Kill fixed heights */
+    height: auto; 
+    min-height: 0;
+    
+    background: transparent;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center; /* Horizontally center content */
+    align-items: center;     /* Vertically center content */
+    margin-bottom: 0;        /* Let parent gap handle spacing */
+    box-shadow: none;
+    overflow: visible; /* Let image be the boss */
+    flex-shrink: 0;   /* CRITICAL: Prevent squashing in list view */
+}
+
+/* Image sizing rule (Key Fix) */
+#modal-card-container .media-item img {
+    max-width: 100%;
+    max-height: 100%; 
+    /* Maximizing Width for "Bigger" images */
+    width: 100%;
+    height: auto;
+    margin: 0 auto; 
+    
+    object-fit: contain;
+    border-radius: 12px;
+    display: block;
+    overflow: visible;
+}
+
+/* Modal should scroll — NOT the image */
+#modal-card-container {
+    overflow-y: auto;
+}
+
+/* Image-only modal layout (clean & centered) */
+/* Image-only modal layout (clean & centered) */
+#modal-card-container .card.image-only-layout {
+    width: 90vw;
+    max-width: 1100px;
+    min-height: 85vh; /* Allow growing, don't clip! */
+    height: auto;
+    padding: 1.5rem; /* Balanced spacing (User felt 0.5 was too tight, 5 was too big) */
+    display: flex;
+    justify-content: flex-start; /* Stack from top */
+    align-items: center;
+    flex-direction: column;
+}
+#modal-card-container .card.image-only-layout .media-item {
+    margin-bottom: 2rem; /* Spacing between images */
+}
+
+/* Ensure clean removal of text elements */
+#modal-card-container .card.image-only-layout .card-content,
+#modal-card-container .card.image-only-layout .card-actions {
+    display: none !important;
+}
+
+/* Footer (Meta) for Image Only - Left Aligned */
+#modal-card-container .card.image-only-layout .card-meta {
+    display: block !important;
+    width: 100%;
+    margin-top: 1rem;
+    text-align: left; /* User Request: Left Aligned */
+    font-size: 0.9rem;
+    color: #444; 
+    font-weight: 500;
+}
+
+/* LEFT SIDEBAR THUMBNAILS (For Preview List) */
+.media-preview-list .media-item {
+    height: 72px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    margin-bottom: 0;
+}
+/* Show ONLY the first image in preview list (User Request) */
+.media-preview-list .media-item:nth-child(n+2) {
+    display: none;
+}
+.media-preview-list img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    margin: 0;
+}
+
+#modal-card-container .card.has-media .card-meta { margin-top: auto; padding-bottom: 0.5rem; }
+#modal-card-container .card.has-media .card-actions { position: relative ; text-align: left ; opacity: 1; bottom: auto; right: auto; padding-bottom: 3rem; }
+
+/* Pin Button in Modal */
+/* Pin Button in Modal - Moved to LEFT to avoid conflict with Close/Remove buttons */
+#modal-card-container .btn-pin {
+    top: 1rem;
+    left: 1rem; /* Moved from Right to Left */
+    right: auto;
+    position: absolute;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Added shadow for pop */
+}
+
+/* Mobile Fallback */
+@media (max-width: 768px) {
+    #modal-card-container .card.has-media {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+    #modal-card-container .card.has-media .card-media {
+        height: auto;
+        overflow: visible;
+        padding: 1.5rem;
+    }
+    #modal-card-container .card.image-only-layout {
+        padding: 1.5rem; /* Reduced padding for mobile */
+        width: 100vw;
+    }
+    #modal-card-container .media-item img {
+        margin: 0 auto; /* Reset margins on mobile */
+    }
+}
+
+.fab-bin {
+    position: fixed; 
+    right: 24px;
+    bottom: 96px; /* Footer height + spacing as requested */
+    background: white; border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    padding: 0.75rem 1.25rem; border-radius: 50px;
+    display: flex; align-items: center; gap: 0.5rem;
+    text-decoration: none; color: var(--text-primary);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 50; 
+    font-weight: 500;
+}
+.fab-bin:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+/* Deleted Card Styles */
+.deleted-card { 
+    /* Exact same look as active card, just slight opacity */
+    opacity: 0.9; 
+}
+.deleted-badge {
+    position: absolute; top: -10px; right: 10px;
+    background: #eee; color: #555; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+    border: 1px solid #ddd;
+    z-index: 10;
+}
+
+/* Modal Deleted State Overrides */
+#modal-card-container .card.deleted-card {
+    border: none;
+    opacity: 1;
+    background: transparent;
+    position: relative;
+}
+
+/* --- Unified Deleted State (Professional) --- */
+/* Badge: Absolute Overlay (Does not affect layout) */
+.deleted-badge {
+    position: absolute !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    right: auto !important; /* Prevent stretching */
+    width: fit-content !important; /* Force pill size */
+    background: rgba(239, 68, 68, 0.95) !important; /* Red-500 */
+    color: white !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 999px !important; /* Full pill */
+    z-index: 100 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none !important;
+    display: inline-flex !important; /* Use inline-flex */
+    align-items: center;
+    justify-content: center;
+}
+
+/* State: Is Deleted (Pointer Events & Opacity) */
+.card.deleted-card {
+    /* No visual jumps. Just interaction lock. */
+}
+
+/* Modal Specific Overrides for Deleted State */
+#modal-card-container .card.deleted-card {
+    /* Ensure no layout shift from active state */
+    border: none !important; /* Modal has no border usually */
+    background: white !important;
+}
+
+/* Footer Metadata Stack */
+#modal-card-container .card-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+    font-size: 0.9rem !important;
+    color: #666;
+    margin-top: auto !important;
+    padding-bottom: 0 !important; /* Let actions handle their own space */
+    width: 100%;
+    /* Ensure it doesn't overlap actions */
+    padding-right: 140px !important; 
+    box-sizing: border-box;
+}
+
+/* Actions: Positioned Absolute Bottom Right */
+#modal-card-container .card-actions {
+    position: absolute !important;
+    bottom: 1.5rem !important;
+    right: 1.5rem !important;
+    display: flex !important;
+    gap: 0.75rem !important;
+    z-index: 50;
+    padding: 0 !important;
+    width: auto !important;
+    background: transparent !important;
+}
+
+/* Hide Pin/Edit buttons when deleted */
+.card.deleted-card .btn-pin,
+.card.deleted-card .btn-edit {
+    display: none !important;
+}
+
+/* Media: Ensure strict consistent sizing */
+#modal-card-container .card-media {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+}
+#modal-card-container .media-item img {
+    border-radius: 12px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Recycle Bin FABs */
+.bin-fab-group {
+    position: fixed;
+    bottom: 6rem; /* Above footer */
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 100;
+    align-items: flex-end;
+}
+.fab-action {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+    background: white;
+    box-shadow: var(--shadow-md);
+    font-weight: 600;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 0.9rem;
+}
+.fab-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.fab-restore {
+    color: var(--text-primary);
+}
+.fab-restore:hover {
+    background: #f0fdf4; /* Light green tint */
+    border-color: #bbf7d0;
+}
+.fab-erase {
+    color: #e11d48; /* Red */
+}
+.fab-erase:hover {
+    background: #fff1f2; /* Light red tint */
+    border-color: #fecdd3;
+}
+/* Branding Footer & Connect Button */
+.branding-footer {
+    position: relative; /* Changed from fixed to avoid overlap */
+    margin-top: 40px;
+    width: 100%;
+    z-index: 5;
+    background: transparent;
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    pointer-events: none; /* Let clicks pass */
+}
+
+.branding-footer a { pointer-events: auto; } /* Enable links */
+
+/* New Connect Button Styles */
+.btn-connect-me {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    background: white;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    margin-top: 12px;
+    
+    /* Idle Animation: Gentle Pulse */
+    animation: gentlePulse 4s infinite;
+}
+
+@keyframes gentlePulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.05); }
+    50% { box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.05); }
+}
+
+.btn-connect-me:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.btn-connect-me:active {
+    transform: scale(0.97);
+}
+
+.btn-connect-me:focus-visible {
+    outline: 2px solid rgba(0,0,0,0.3);
+    outline-offset: 2px;
+}
+
+/* Micro interaction sparkle sweep */
+.btn-connect-me::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255,255,255,0.6),
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.btn-connect-me:hover::after {
+    transform: translateX(100%);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .branding-footer {
+        padding: 1.5rem 0;
+    }
+    .btn-connect-me {
+        min-width: 200px;
+        width: 80%; /* Ensure it's reachable */
+    }
+}
+
+/* Responsive Optimization */
+@media (max-width: 900px) { 
+    .notes-grid { gap: 16px; }
+    .card { padding: 1rem; }
+}
+
+@media (max-width: 600px) {
+    /* Mobile: Single Column usually, but let auto-fill handle it with minmax */
+    /* If screen < 540px (250*2+gap), it drops to 1 col automatically. */
+    .app-container { padding: 0 1rem 5rem 1rem; }
+    .notes-grid { gap: 16px; }
+    
+    .yudo-logo { font-size: 3.5rem; }
+    .fab-bin { bottom: 5rem; } 
+    .branding-footer { padding: 0.75rem 0; }
+}
+/* GRID FIX */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* CARD CONTAINMENT */
+.card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* TEXT OVERFLOW FIX (CRITICAL) */
+.item-title,
+.item-body {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* LIMIT HEIGHT (OPTIONAL BUT CLEAN) */
+.clamp-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* MEDIA SAFETY */
+.card-media img,
+.card-media iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* MODAL */
+/* Clean up old Centered Modal styles at bottom since we moved them up */
+/* (This block is now redundant or can be removed/merged) */
+
+/* Close button */
+.btn-close-modal {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    width: 36px; height: 36px;
+    border-radius: 50%; border: none;
+    background: rgba(0,0,0,0.05);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    z-index: 50; color: #555;
+}
+.btn-close-modal:hover { background: rgba(0,0,0,0.1); color: #000; }
+
+/* FORCE Full Content in Modal (Replaces JS Hacking) */
+/* FORCE Full Content in Modal */
+#modal-card-container .item-title,
+#modal-card-container .item-body {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    max-height: none !important;
+    overflow: visible !important;
+    mask-image: none !important;
+    white-space: pre-wrap !important; /* Preserve line breaks */
+}
+#modal-card-container .media-item { display: block !important; }
+#modal-card-container .more-media-badge { display: none !important; }
+
+/* Grid & Card Fixes (User Preferences) */
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+.notes-grid .item-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.notes-grid .item-body {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* ✅ Modal: Created At — left aligned */
+#modal-card-container .card-meta {
+    text-align: left;
+    margin-top: auto;
+    padding: 0.5rem 1rem 1.25rem 1.5rem; /* match content padding */
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* --- Auth Pages --- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Fixed Positioning for non-scrollable App-Look */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 100;
+    padding: 1rem;
+}
+/* 1. FLOATING TOOLBAR */
+.editor-toolbar {
+    position: absolute; /* Anchor to modal-content */
+    top: 20px;
+    right: -70px; /* Closer to edge */
+    width: 50px; /* Explicit width */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    
+    background: #ffffff; /* Solid white fallback */
+    background: rgba(255, 255, 255, 0.95); /* High opacity */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.1); /* Visible border */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    
+    opacity: 0;
+    transform: translateX(-10px); 
+    transition: all 0.3s ease-out;
+    z-index: 2000; 
+    pointer-events: none;
+}
+.editor-toolbar.visible {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    display: flex; /* Force display */
+}
+
+/* Mobile Docked State */
+@media (max-width: 768px) {
+    .editor-toolbar {
+        position: fixed; /* Dock to viewport on mobile */
+        flex-direction: row;
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: 30px;
+        transform: translate(-50%, 20px);
+        width: max-content;
+        padding: 6px 16px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3);
+    }
+    .editor-toolbar.visible {
+        transform: translate(-50%, 0);
+    }
+}
+.auth-card {
+    background: rgba(255, 255, 255, 0.85); /* Glass-ish */
+    backdrop-filter: blur(10px);
+    border: 1px solid white;
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.02);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.auth-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+    letter-spacing: -0.05em;
+}
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.auth-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    background: rgba(255,255,255,0.9);
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.auth-input:focus {
+    outline: none;
+    border-color: #555;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+.btn-auth {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--text-primary);
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.1s, opacity 0.2s;
+}
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.auth-footer {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+.auth-footer a {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+.flash-messages {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* Fixed Logout Button */
+.fixed-logout {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-primary);
+    text-decoration: none;
+    z-index: 1000;
+    font-size: 0.75rem; 
+    font-weight: 500;
+    transition: opacity 0.2s, transform 0.2s;
+    background: transparent;
+    border: none;
+}
+.fixed-logout i {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2px;
+}
+.fixed-logout:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+}
+
+/* Auth Options (Checkbox) */
+.auth-options {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0.5rem;
+}
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+.checkbox-container input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--text-primary);
+    cursor: pointer;
+}
+
+/* ========================================= */
+/* RESPONSIVE OPTIMIZATION (vFinal) */
+/* ========================================= */
+
+/* 1️⃣ Modal Responsiveness (CRITICAL FIX) */
+@media (max-width: 768px) {
+  /* A. Stack Media → Content Vertically */
+  #modal-card-container .card.has-media {
+    flex-direction: column !important;
+    height: auto !important;
+    max-height: 90vh !important; /* Safety cap */
+    overflow: hidden !important; /* Container handles scroll */
+  }
+
+  /* B. Cap Image Height (40% Rule) */
+  #modal-card-container .card.has-media .card-media {
+    max-height: 40vh !important;
+    flex: none !important; /* Don't grow */
+    overflow-y: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color);
+    width: 100% !important;
+  }
+
+  /* C. Text Area Must Always Be Readable */
+  #modal-card-container .card.has-media .card-content {
+    flex: 1 !important; /* Parse remaining space */
+    padding: 1.5rem !important;
+    overflow-y: auto !important;
+    width: 100% !important;
+  }
+  
+  /* Reset Card Rights Column wrapper if used */
+  .card-right-column {
+    display: contents !important; /* Unwrap */
+  }
+
+  /* D. Reduce Modal Padding */
+  .modal-content {
+    padding: 0 !important;
+    border-radius: 12px !important;
+    width: 90vw !important;
+  }
+
+  /* E. Close Button Safety */
+  .btn-close-modal {
+    top: 0.75rem !important;
+    right: 0.75rem !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Reset Pin Position */
+  #modal-card-container .btn-pin {
+      top: 0.75rem !important;
+      left: 0.75rem !important;
+  }
+}
+
+/* 2️⃣ Modal – Image Behavior (Consistency Rule) */
+#modal-card-container .media-item img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+/* 3️⃣ Grid Responsiveness */
+/* Tablet */
+@media (max-width: 1023px) {
+  .notes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  }
+}
+
+/* Mobile (≤ 480px) */
+@media (max-width: 480px) {
+  .notes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)) !important; /* Full width */
+    gap: 1rem !important;
+  }
+  
+  .app-container {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+  }
+}
+
+/* 4️⃣ Footer Overlap Fix */
+.branding-footer {
+  position: fixed !important; 
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  pointer-events: auto !important; 
+  z-index: 200 !important; /* Above auth container */
+  background: transparent !important;
+}
+/* Ensure main content pushes footer down */
+.app-container {
+  min-height: 100vh;
+  padding-bottom: 2rem; 
+  display: flex;
+  flex-direction: column;
+}
+/* Make sure workspace expands */
+.workspace-section {
+    flex: 1;
+}
+
+/* 5️⃣ Auth Pages (Login / Register) */
+@media (max-width: 480px) {
+  .auth-card {
+    margin: 1.5rem !important;
+    padding: 1.5rem !important;
+    width: auto !important;
+  }
+}
+
+/* 6️⃣ Logout Button (Mobile Optimization) */
+@media (max-width: 768px) {
+  .fixed-logout span {
+    display: none !important; /* Hide text */
+  }
+  .fixed-logout {
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.8);
+      padding: 6px;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+}
+
+/* --- Phase 8: Editor Toolbar (Fixed Viewport) --- */
+/* --- Phase 8: Editor Toolbar (Snapped to Modal) --- */
+.editor-toolbar {
+    position: absolute; /* Stick to the Modal */
+    right: -64px;       /* Outside Right Edge */
+    top: 60px;          /* Aligned with content top */
+    transform: none;
+    
+    background: white;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 50px; /* Full pill */
+    padding: 12px 6px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Soft shadow */
+    z-index: 100;
+    transition: opacity 0.2s;
+}
+
+/* Mobile/Tablet Layout: Docked Bottom Bar */
+@media (max-width: 1024px) {
+    .editor-toolbar {
+        position: fixed; /* Back to Fixed for Mobile */
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        transform: none;
+        
+        flex-direction: row;
+        justify-content: center;
+        padding: 12px 16px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        width: 100%;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-bottom: none;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        z-index: 9999;
+    }
+}
+
+.editor-toolbar.active {
+    display: flex;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.editor-toolbar button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.editor-toolbar button:hover {
+    background: #f1f5f9;
+    color: #111;
+    transform: scale(1.1);
+}
+.editor-toolbar button.active {
+    background: #fde047; /* Vibrant Yellow */
+    color: #000;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(253, 224, 71, 0.4);
+}
+
+/* Selection Highlight */
+::selection {
+    background: #fde047; /* Yellow */
+    color: #111;
+}
+
+/* Tag Chips */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 1rem;
+    padding-top: 4px;
+    min-height: 28px; /* Reserve space */
+}
+.tag-chip {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    user-select: none;
+    border: 1px solid transparent;
+}
+.tag-chip:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+.tag-chip .remove-tag {
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.5;
+    padding: 2px;
+    border-radius: 50%;
+}
+.tag-chip .remove-tag:hover {
+    opacity: 1;
+    background: rgba(0,0,0,0.1);
+    color: #ef4444;
+}
+
+/* Tag Popover */
+.tag-popover {
+    position: absolute;
+    background: white;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 12px;
+    width: 260px;
+    z-index: 1000;
+    display: none;
+    top: 0; left: 0; /* JS will position */
+}
+.tag-popover.active {
+    display: block;
+    animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tag-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+.tag-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+.tag-suggestions {
+    max-height: 160px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.tag-suggestion {
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all 0.1s;
+}
+.tag-suggestion:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Phase 9: Apple-Style Extensions --- */
+
+/* 1. Drawing Canvas Overlay */
+.drawing-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 2000; /* Above everything */
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.drawing-modal.active {
+    display: flex;
+    opacity: 1;
+}
+.canvas-container {
+    background: white;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #eee;
+}
+#drawing-canvas {
+    cursor: crosshair;
+    touch-action: none;
+}
+.drawing-tools {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+}
+.drawing-tool-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: #f8fafc;
+    color: #333;
+    transition: all 0.2s;
+}
+.drawing-tool-btn:hover { background: #f1f5f9; transform: translateY(-2px); }
+.drawing-tool-btn.active { background: #000; color: white; border-color: #000; }
+.drawing-tool-btn.btn-save-drawing { background: #3b82f6; color: white; }
+.drawing-tool-btn.btn-save-drawing:hover { background: #2563eb; }
+
+/* 2. Checklist Items */
+ul.checklist {
+    list-style: none;
+    padding-left: 0;
+}
+li.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+    position: relative;
+    line-height: 1.5;
+}
+li.checklist-item::before {
+    content: '';
+    width: 18px; height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%; /* Rounded checkbox like Apple Notes */
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+li.checklist-item:hover::before { border-color: #94a3b8; }
+li.checklist-item.checked::before {
+    background: #f59e0b; /* Amber Check */
+    border-color: #f59e0b;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+li.checklist-item.checked {
+    color: #94a3b8;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+/* --- Branding Footer (Animated CTA) --- */
+.branding-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    z-index: 100;
+    pointer-events: none; /* Let clicks pass through empty areas */
+}
+
+.branding-footer p {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+
+.btn-connect-me {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    background: rgba(255, 255, 255, 0.85); /* Glassy White */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 50px; /* Pill Shape */
+    
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255,255,255,0.5); /* Inner Highlight */
+        
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Spring */
+    transform: translateY(0);
+}
+
+.btn-connect-me:hover {
+    transform: translateY(-4px) scale(1.02);
+    background: #fff;
+    color: #000;
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 
+        0 10px 15px -3px rgba(0, 0, 0, 0.08),
+        0 4px 6px -2px rgba(0, 0, 0, 0.04),
+        0 0 0 2px rgba(0,0,0,0.02); /* Subtle Outline Ring */
+}
+
+.btn-connect-me:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
