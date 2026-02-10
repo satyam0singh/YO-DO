@@ -32,7 +32,7 @@ class ToolbarController {
         if(btnChecklist) {
             btnChecklist.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.insertChecklist();
+                this.toggleChecklist();
             });
         }
 
@@ -118,9 +118,62 @@ class ToolbarController {
         }
     }
 
-    insertChecklist() {
-        const html = `<ul class="checklist"><li class="checklist-item">New Task</li></ul>`;
-        document.execCommand('insertHTML', false, html);
+    toggleChecklist() {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const parentList = this.findParentList(range.commonAncestorContainer);
+
+        if (parentList) {
+            // Already in a list -> Toggle Class
+            if (parentList.classList.contains('checklist')) {
+                // Convert to Standard List
+                parentList.classList.remove('checklist');
+                parentList.querySelectorAll('.checklist-item').forEach(li => {
+                    li.classList.remove('checklist-item');
+                    li.classList.remove('checked'); // Reset state
+                });
+            } else {
+                // Convert to Checklist
+                parentList.classList.add('checklist');
+                parentList.querySelectorAll('li').forEach(li => {
+                    li.classList.add('checklist-item');
+                });
+            }
+        } else {
+            // Not in a list -> Create New Checklist
+            // Use execCommand to create a list first, then upgrade it
+            document.execCommand('insertUnorderedList', false, null);
+            
+            // Re-fetch selection to find the newly created list
+            const newSelection = window.getSelection();
+            const newRange = newSelection.getRangeAt(0);
+            const newList = this.findParentList(newRange.commonAncestorContainer);
+            
+            if (newList) {
+                newList.classList.add('checklist');
+                newList.querySelectorAll('li').forEach(li => {
+                    li.classList.add('checklist-item');
+                });
+            }
+        }
+        
+        // Trigger Sync
+        if(window.syncContent && this.activeNoteId) {
+             const card = document.querySelector(`.item-card[data-id="${this.activeNoteId}"] .item-body`);
+             if(card) window.syncContent(this.activeNoteId, 'content', card.innerHTML);
+        }
+    }
+
+    findParentList(node) {
+        while (node && node.id !== 'modal-card-container') {
+            if (node.tagName === 'UL' || node.tagName === 'OL') {
+                return node;
+            }
+            node = node.parentNode;
+        }
+        return null;
     }
 
     toggleTagPopover() {
