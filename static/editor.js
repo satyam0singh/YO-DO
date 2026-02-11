@@ -133,11 +133,16 @@ document.addEventListener('click', (e) => {
         
         // Assuming checkbox is roughly 20px wide + gap
         if (x < 25) { 
+            // CHECK: Is this card deleted? (Recycle Bin Read-Only)
+            const card = e.target.closest('.card, .modal-content');
+            if (card && (card.classList.contains('deleted-card') || card.dataset.deleted === 'true')) {
+                return; // Do nothing
+            }
+
             e.preventDefault();
             e.target.classList.toggle('checked');
             
             // Trigger Save/Sync
-            const card = e.target.closest('.card, .modal-content');
             if (card) {
                 const id = card.getAttribute('data-id') || document.querySelector('#modal-card-container .card')?.getAttribute('data-id');
                 if (id && window.syncContent) {

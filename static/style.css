@@ -183,6 +183,100 @@ body {
     transition: border-color 0.2s;
 }
 
+/* --- Label Bar System --- */
+.label-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+    position: relative;
+    width: 100%;
+    /* Ensure it doesn't overflow parent width */
+    max-width: 100%; 
+}
+
+.label-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+    /* Hide Scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+    padding-bottom: 4px; /* Space for shadow if needed */
+    flex: 1;
+}
+.label-bar::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    white-space: nowrap;
+    
+    /* Gentle Push Effect */
+}
+.filter-chip:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    border-color: #d6d3d1;
+    transform: translateY(-1px);
+}
+.filter-chip.active {
+    background: #18181b; /* Zinc 900 */
+    color: white;
+    border-color: #18181b;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-add-label {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px dashed #cbd5e1;
+    background: transparent;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.btn-add-label:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    background: var(--hover-bg);
+}
+
+.btn-clear-filters {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-left: auto; /* Push to right if we want fixed pos, but flex gap handles it */
+}
+.btn-clear-filters.visible { display: flex; }
+.btn-clear-filters:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
 .nav-item-vertical {
     display: flex;
     flex-direction: column;

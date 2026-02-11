@@ -226,13 +226,141 @@ class FluidSurfaceEngine {
 
     start() {
         const animate = (time) => {
-            this.ctx.clearRect(0, 0, this.width, this.height);
-            this.rippleSystem.update();
-            this.layers.forEach(layer => {
-                layer.draw(this.ctx, this.width, this.height, time, this.rippleSystem);
-            });
+            if(this.ctx) {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                this.rippleSystem.update();
+                this.layers.forEach(layer => {
+                    layer.draw(this.ctx, this.width, this.height, time, this.rippleSystem);
+                });
+            }
             requestAnimationFrame(animate);
         };
         requestAnimationFrame(animate);
     }
+}
+
+/**
+ * =========================================================
+ * 5. LABEL CONTROLLER
+ * =========================================================
+ */
+class LabelController {
+    constructor() {
+        this.activeTags = new Set();
+        this.bar = document.getElementById('label-bar');
+        this.clearBtn = document.getElementById('btn-clear-filters');
+    }
+
+    toggleFilter(tagId, btn) {
+        if (this.activeTags.has(tagId)) {
+            this.activeTags.delete(tagId);
+            btn.classList.remove('active');
+        } else {
+            this.activeTags.add(tagId);
+            btn.classList.add('active');
+        }
+        
+        this.updateClearButton();
+        this.applyFilters();
+    }
+
+    updateClearButton() {
+        if (this.activeTags.size > 0) {
+            this.clearBtn.classList.add('visible');
+        } else {
+            this.clearBtn.classList.remove('visible');
+        }
+    }
+
+    clearFilters() {
+        this.activeTags.clear();
+        document.querySelectorAll('.filter-chip.active').forEach(btn => btn.classList.remove('active'));
+        this.updateClearButton();
+        this.applyFilters();
+    }
+
+    applyFilters() {
+        // Trigger generic grid filter
+        const searchInput = document.getElementById('search-input');
+        const query = searchInput ? searchInput.value : '';
+        
+        // We define a global filter function that combines text + tags
+        if(window.filterGrid) window.filterGrid(query);
+    }
+
+    promptCreate() {
+        const name = prompt("Enter new label name:");
+        if (name) {
+            this.createLabel(name);
+        }
+        // In a real premium app, we would use a nice modal or inline input
+        // For now, prompt is functional as per "quick add" requirement
+    }
+
+    createLabel(name) {
+        fetch('/tags', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name: name })
+        })
+        .then(r => r.json())
+        .then(tag => {
+            if(tag.id) {
+                // Add to UI
+                this.renderChip(tag);
+            }
+        });
+    }
+
+    renderChip(tag) {
+        // Insert before the "+" button
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip';
+        btn.dataset.id = tag.id;
+        btn.innerText = tag.name;
+        btn.onclick = () => this.toggleFilter(tag.id, btn);
+        
+        // Find "+" button index
+        const addBtn = this.bar.querySelector('.btn-add-label');
+        this.bar.insertBefore(btn, addBtn);
+        
+        // Scroll to show
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'end' });
+    }
+}
+
+window.labelController = new LabelController();
+
+// Update Filter Grid to support Tags
+window.filterGrid = function(query) {
+    const term = query.toLowerCase();
+    const items = document.querySelectorAll('.item-card');
+    
+    // Get Active Tags
+    const activeTags = window.labelController ? window.labelController.activeTags : new Set();
+    
+    items.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        const textMatch = text.includes(term);
+        
+        let tagMatch = true;
+        if (activeTags.size > 0) {
+            // Check if card has AT LEAST ONE of the active tags?
+            // User requested "Checkbox like style to select notes in that label"
+            // Usually implies filtering by that label.
+            // If multiple checked, usually OR logic (Show work OR personal).
+            
+            // We need to know which tags a card has.
+            // We can look at the DOM: .tag-chip elements inside card
+            const cardTags = Array.from(card.querySelectorAll('.tag-chip')).map(c => parseInt(c.dataset.id));
+            
+            // Check intersection
+            const hasTag = cardTags.some(id => activeTags.has(id));
+            tagMatch = hasTag;
+        }
+        
+        card.style.display = (textMatch && tagMatch) ? '' : 'none';
+    });
+    
+    if(window.resizeAllMasonryItems) window.resizeAllMasonryItems();
 }

@@ -22,6 +22,31 @@
             <input type="text" id="search-input" placeholder="Search your notes..." autocomplete="off">
         </div>
 
+        <!-- Label Bar (Horizontal Scroll) -->
+        <div class="label-bar-container">
+            <div class="label-bar" id="label-bar">
+                {% if tags %}
+                {% for tag in tags %}
+                <button class="filter-chip" data-id="{{ tag.id }}"
+                    onclick="labelController.toggleFilter({{ tag.id }}, this)">
+                    {{ tag.name }}
+                </button>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Add Label Button -->
+                <button class="btn-add-label" onclick="labelController.promptCreate()" title="New Label">
+                    <i data-lucide="plus"></i>
+                </button>
+            </div>
+
+            <!-- Clear Filters (Visible when active) -->
+            <button class="btn-clear-filters" id="btn-clear-filters" onclick="labelController.clearFilters()"
+                title="Clear Selection">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
         <!-- Input Area (New Note) -->
         <div class="input-area glass-panel">
             <form action="{{ url_for('add') }}" method="POST" id="addForm">

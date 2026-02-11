@@ -225,7 +225,10 @@ def index():
         item.media = media
         display_items.append(item)
         
-    return render_template('index.html', items=display_items)
+    # Fetch Tags for Label Bar
+    tags = Tag.query.filter_by(user_id=current_user.id).order_by(Tag.name).all()
+        
+    return render_template('index.html', items=display_items, tags=tags)
 
 @app.route('/bin')
 @login_required

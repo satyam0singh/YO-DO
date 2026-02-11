@@ -22,7 +22,7 @@
     <div class="notes-grid" id="notesGrid">
         {% if items %}
         {% for item in items %}
-        <div class="card deleted-card" data-id="{{ item.id }}">
+        <div class="card item-card deleted-card" data-id="{{ item.id }}" data-deleted="true">
             <div class="deleted-badge">Deleted</div>
 
             {% if item.media %}
