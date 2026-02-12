@@ -529,5 +529,39 @@ def toggle_pin(item_id):
         db.session.commit()
     return jsonify({'status': 'success', 'pinned': note.pinned})
 
+@app.route('/tags/batch_apply', methods=['POST'])
+@login_required
+def batch_apply_tag():
+    data = request.get_json()
+    tag_name = data.get('tag_name', '').strip()
+    note_ids = data.get('note_ids', [])
+    
+    if not tag_name: return jsonify({'status': 'error', 'message': 'Tag name required'}), 400
+    
+    # 1. Find or Create Tag
+    tag = Tag.query.filter_by(user_id=current_user.id, name=tag_name).first()
+    if not tag:
+        tag = Tag(user_id=current_user.id, name=tag_name)
+        db.session.add(tag)
+        db.session.flush() # Get ID without commit yet
+        
+    # 2. Batch Apply
+    count = 0
+    if note_ids:
+        notes = Note.query.filter(Note.id.in_(note_ids), Note.user_id == current_user.id).all()
+        for note in notes:
+            if tag not in note.tags:
+                note.tags.append(tag)
+                count += 1
+                
+    db.session.commit()
+    
+    return jsonify({
+        'status': 'success', 
+        'tag': {'id': tag.id, 'name': tag.name, 'color': tag.color},
+        'applied_count': count
+    })
+
+
 if __name__ == '__main__':
     app.run(debug=True)

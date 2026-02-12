@@ -280,54 +280,235 @@ class LabelController {
     }
 
     applyFilters() {
-        // Trigger generic grid filter
         const searchInput = document.getElementById('search-input');
         const query = searchInput ? searchInput.value : '';
-        
-        // We define a global filter function that combines text + tags
         if(window.filterGrid) window.filterGrid(query);
     }
 
     promptCreate() {
-        const name = prompt("Enter new label name:");
-        if (name) {
-            this.createLabel(name);
-        }
-        // In a real premium app, we would use a nice modal or inline input
-        // For now, prompt is functional as per "quick add" requirement
+        this.openCreateModal();
     }
 
-    createLabel(name) {
-        fetch('/tags', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ name: name })
-        })
-        .then(r => r.json())
-        .then(tag => {
-            if(tag.id) {
-                // Add to UI
-                this.renderChip(tag);
+    openCreateModal() {
+        const modal = document.getElementById('create-label-modal');
+        const input = document.getElementById('new-label-input');
+        const list = document.getElementById('note-selection-list');
+        const selectAllCb = document.getElementById('select-all-checkbox');
+        const searchInput = document.getElementById('note-search-input');
+        
+        // Reset
+        input.value = '';
+        searchInput.value = '';
+        list.innerHTML = '';
+        if(selectAllCb) selectAllCb.checked = false;
+        this.updateSelectedCount();
+
+        // Populate Notes using DocumentFragment for performance
+        const cards = document.querySelectorAll('.item-card:not(.deleted-card)');
+        
+        if (cards.length === 0) {
+            list.innerHTML = '<div style="padding:12px; color:#888; text-align:center;">No notes available.</div>';
+        } else {
+            const fragment = document.createDocumentFragment();
+            
+            cards.forEach(card => {
+                const id = card.dataId || card.dataset.id; // handle both
+                const titleEl = card.querySelector('.item-title');
+                let title = titleEl ? titleEl.innerText.trim() : 'Untitled';
+                
+                if (!title) {
+                     const bodyEl = card.querySelector('.item-body');
+                     title = bodyEl ? bodyEl.innerText.trim().substring(0, 40) : 'Untitled';
+                }
+                if (!title) title = "Untitled Note";
+
+                const uniqueId = `note-check-${id}`;
+                
+                const item = document.createElement('div');
+                item.className = 'note-selection-item';
+                item.dataset.search = title.toLowerCase(); // Cache for search
+                
+                // Checkbox
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'note-selection-checkbox';
+                cb.id = uniqueId;
+                cb.value = id;
+                cb.onchange = () => {
+                    this.updateSelectedCount();
+                    this.updateSelectAllState();
+                };
+
+                const label = document.createElement('label');
+                label.htmlFor = uniqueId;
+                label.className = 'note-selection-title';
+                label.textContent = title;
+                
+                const wrapper = document.createElement('div'); // Checkbox visual wrapper if needed, but we used standard checkbox in CSS or custom
+                // Actually my CSS uses .checkbox-wrapper for Select All, but standard input for list?
+                // Let's stick to standard input for list items as per CSS
+                
+                item.appendChild(cb);
+                item.appendChild(label);
+                
+                // Row click toggles checkbox
+                item.onclick = (e) => {
+                    if (e.target !== cb && e.target !== label) {
+                         cb.checked = !cb.checked;
+                         cb.dispatchEvent(new Event('change'));
+                    }
+                }
+
+                fragment.appendChild(item);
+            });
+            list.appendChild(fragment);
+        }
+        
+        modal.classList.add('active');
+        setTimeout(() => input.focus(), 100);
+        
+        modal.onclick = (e) => {
+             if(e.target === modal) this.closeCreateModal();
+        }
+    }
+
+    closeCreateModal() {
+        document.getElementById('create-label-modal').classList.remove('active');
+    }
+
+    // --- Search Logic ---
+    filterNotes() {
+        const query = document.getElementById('note-search-input').value.toLowerCase();
+        const items = document.querySelectorAll('.note-selection-item');
+        
+        items.forEach(item => {
+            const text = item.dataset.search;
+            if (text.includes(query)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
             }
         });
     }
 
+    // --- Select All Logic ---
+    toggleSelectAll() {
+        const masterCb = document.getElementById('select-all-checkbox');
+        const isChecked = masterCb.checked;
+        
+        const visibleItems = Array.from(document.querySelectorAll('.note-selection-item')).filter(item => item.style.display !== 'none');
+        
+        visibleItems.forEach(item => {
+            const cb = item.querySelector('.note-selection-checkbox');
+            cb.checked = isChecked;
+        });
+        
+        this.updateSelectedCount();
+    }
+
+    updateSelectAllState() {
+        // Optional: Make Select All indeterminate or unchecked if not all are checked
+        // Keeping it simple for now
+    }
+
+    updateSelectedCount() {
+        const count = document.querySelectorAll('.note-selection-checkbox:checked').length;
+        const countEl = document.getElementById('selected-count');
+        if(countEl) countEl.innerText = `${count} selected`;
+    }
+
+    // --- Batch Creation ---
+    confirmCreate() {
+        const input = document.getElementById('new-label-input');
+        const name = input.value.trim();
+        
+        if (!name) {
+            // Flash error or alert
+            input.style.borderColor = '#ef4444';
+            setTimeout(() => input.style.borderColor = '', 2000);
+            return;
+        }
+
+        // Get Selected Notes
+        const checkboxes = document.querySelectorAll('.note-selection-checkbox:checked');
+        const noteIds = Array.from(checkboxes).map(cb => cb.value);
+
+        // API Call
+        fetch('/tags/batch_apply', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                tag_name: name,
+                note_ids: noteIds
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                // 1. Add Label to Sidebar if new
+                // Check if already exists in UI
+                const existingBtn = this.bar.querySelector(`.filter-chip[data-id="${data.tag.id}"]`);
+                if (!existingBtn) {
+                    this.renderChip(data.tag);
+                }
+
+                // 2. Add Tags to Frontend Cards Immediately (Optimistic / Confirmed)
+                /* 
+                   We could reload page, but that's jarry.
+                   Better: Iterate loaded IDs and append tag chip.
+                */
+                noteIds.forEach(id => {
+                    this.addChipToCard(id, data.tag);
+                });
+
+                this.closeCreateModal();
+                
+                // Show toast? (Optional)
+                console.log(`Applied label "${name}" to ${data.applied_count} notes.`);
+            } else {
+                alert('Error creating label');
+            }
+        });
+    }
+
+    addChipToCard(noteId, tag) {
+        const card = document.querySelector(`.item-card[data-id="${noteId}"]`);
+        if (!card) return;
+        
+        let container = card.querySelector('.tags-container');
+        if (!container) {
+            const content = card.querySelector('.card-content');
+            container = document.createElement('div');
+            container.className = 'tags-container';
+            content.appendChild(container);
+        }
+        
+        if (container.querySelector(`.tag-chip[data-id="${tag.id}"]`)) return;
+
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.dataset.id = tag.id;
+        chip.innerText = tag.name;
+        chip.onclick = (e) => {
+             e.stopPropagation(); 
+             window.setSearch(tag.name, e); 
+        };
+        container.appendChild(chip);
+    }
+
     renderChip(tag) {
-        // Insert before the "+" button
         const btn = document.createElement('button');
         btn.className = 'filter-chip';
         btn.dataset.id = tag.id;
         btn.innerText = tag.name;
         btn.onclick = () => this.toggleFilter(tag.id, btn);
         
-        // Find "+" button index
         const addBtn = this.bar.querySelector('.btn-add-label');
         this.bar.insertBefore(btn, addBtn);
-        
-        // Scroll to show
         btn.scrollIntoView({ behavior: 'smooth', inline: 'end' });
     }
 }
+
 
 window.labelController = new LabelController();
 
