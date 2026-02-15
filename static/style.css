@@ -1393,10 +1393,22 @@ body {
 #modal-card-container .more-media-badge { display: none !important; }
 
 /* Grid & Card Fixes (User Preferences) */
+/* CSS Masonry (Native, Fast, Low CLS) */
 .notes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.5rem;
+    display: block;
+    column-count: 4; /* Default desktop */
+    column-gap: 1.5rem;
+    width: 100%;
+}
+@media (max-width: 1200px) { .notes-grid { column-count: 3; } }
+@media (max-width: 900px) { .notes-grid { column-count: 2; } }
+@media (max-width: 600px) { .notes-grid { column-count: 1; } }
+
+.notes-grid .item-card {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    display: inline-block; /* Fixes some rendering issues */
+    width: 100%;
 }
 .notes-grid .item-title {
     display: -webkit-box;
@@ -2393,5 +2405,226 @@ li.checklist-item.checked {
 .btn-confirm:active {
     transform: translateY(0);
 }
+
+/* --- iOS Style Markup Modal --- */
+.drawing-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #f2f2f7; /* iOS System Gray 6 */
+    z-index: 2000;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.drawing-modal.active {
+    opacity: 1; pointer-events: auto;
+}
+
+/* Header */
+/* Header */
+.drawing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px; /* Refined padding */
+    background: rgba(255,255,255,0.9); /* Slightly more opaque */
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.05); /* Softer border */
+    z-index: 2002;
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width */
+    position: absolute; /* Fix to top */
+    top: 0; left: 0;
+}
+.drawing-title { 
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600; 
+    font-size: 1.1rem; 
+    color: #1a1a1a;
+    letter-spacing: -0.01em;
+}
+.btn-drawing-cancel, .btn-drawing-done {
+    background: none; 
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; 
+    cursor: pointer;
+    color: #007aff; 
+    font-weight: 500;
+    padding: 8px 12px; /* Touch target size */
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+.btn-drawing-cancel:hover, .btn-drawing-done:hover {
+    background: rgba(0, 122, 255, 0.1);
+}
+.btn-drawing-done { 
+    font-weight: 600; 
+}
+
+/* Canvas */
+#drawing-canvas {
+    flex: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    background: white;
+    touch-action: none;
+}
+
+/* Bottom Dock */
+.markup-dock {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245, 245, 247, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 12px 24px;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 2002;
+    width: auto;
+}
+
+/* Tool Graphics (Realistic) */
+/* Tool Graphics (Realistic - Enhanced Visibility) */
+.markup-tools {
+    display: flex;
+    align-items: flex-end; /* Align bottom to pop up */
+    gap: 15px; /* More spacing */
+    height: 110px; /* Space for pop up */
+    margin-bottom: -15px; /* Pull down into dock */
+    padding-bottom: 5px;
+}
+
+.tool-item {
+    width: 28px;
+    height: 100px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+}
+.tool-item.active {
+    transform: translateY(-25px);
+    z-index: 20;
+}
+
+.tool-graphic {
+    width: 14px; /* Slightly thicker */
+    height: 100%;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.2); /* Stronger shadow */
+    border: 1px solid rgba(0,0,0,0.05); /* Outline definition */
+}
+
+/* PEN */
+.pen-graphic { width: 16px; background: linear-gradient(90deg, #e5e5e5 0%, #ffffff 40%, #d4d4d4 100%); }
+.pen-graphic .tool-cap { height: 20px; background: #333; border-radius: 3px 3px 0 0; }
+.pen-graphic .tool-barrel { flex: 1; background: inherit; }
+.pen-graphic .tool-tip { height: 12px; background: #333; clip-path: polygon(0 0, 100% 0, 50% 100%); margin-bottom: 5px; }
+
+/* MARKER */
+.marker-graphic { width: 24px; background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%); }
+.marker-graphic .tool-cap { height: 15px; background: rgba(255,255,255,0.8); border-radius: 3px 3px 0 0; }
+.marker-graphic .tool-barrel { flex: 1; background: inherit; }
+.marker-graphic .tool-tip { height: 14px; background: white; opacity: 0.9; clip-path: polygon(0 0, 100% 15%, 100% 100%, 0 100%); margin-bottom: 5px; }
+
+/* FINE TIP */
+.finetip-graphic { width: 14px; background: #fff; border: 1px solid #ccc; }
+.finetip-graphic .tool-cap { height: 18px; background: #333; border-radius: 3px 3px 0 0; }
+.finetip-graphic .tool-barrel { flex: 1; background: #fff; }
+.finetip-graphic .tool-tip { height: 8px; background: #333; margin-bottom: 5px; border-radius: 2px; width: 4px; margin-left: auto; margin-right: auto; }
+
+/* CRAYON */
+.crayon-graphic { width: 18px; background: transparent; border: none; box-shadow: none; }
+.crayon-graphic .tool-wrapper { height: 80%; width: 100%; background: #ef4444; border-radius: 2px; position: relative; background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 4px); }
+.crayon-graphic .tool-wrapper::after { content:''; position: absolute; top: 10px; width: 100%; height: 5px; background: rgba(0,0,0,0.2); }
+.crayon-graphic .tool-tip { height: 20%; width: 100%; background: #ef4444; clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); margin-bottom: 2px; margin-top: -2px; }
+
+/* CALLIGRAPHY */
+.calligraphy-graphic { width: 16px; background: #1e293b; }
+.calligraphy-graphic .tool-cap { height: 20px; background: #94a3b8; border-radius: 2px 2px 0 0; }
+.calligraphy-graphic .tool-barrel { flex: 1; background: linear-gradient(90deg, #334155, #475569); }
+.calligraphy-graphic .tool-tip { height: 15px; background: #cbd5e1; clip-path: polygon(20% 0, 80% 0, 80% 80%, 100% 100%, 0 100%, 20% 80%); margin-bottom: 5px; }
+
+/* WATERCOLOR */
+.watercolor-graphic { width: 18px; background: transparent; border: none; box-shadow: none; }
+.watercolor-graphic .tool-barrel { height: 75%; width: 100%; background: #b45309; border-radius: 2px; } /* Wooden handle */
+.watercolor-graphic .tool-bristles { height: 25%; width: 100%; background: #3b82f6; border-radius: 0 0 10px 10px; margin-bottom: 5px; opacity: 0.9; }
+
+/* PENCIL */
+.pencil-graphic { width: 14px; background: #facc15; } /* Yellow pencil */
+.pencil-graphic .tool-cap { height: 18px; background: #f87171; border-bottom: 3px solid #d1d5db; border-radius: 3px 3px 0 0; } /* Eraser tip */
+.pencil-graphic .tool-barrel { flex: 1; background: inherit; }
+.pencil-graphic .tool-tip { height: 18px; background: #fef08a; clip-path: polygon(0 0, 100% 0, 50% 100%); margin-bottom: 5px; position: relative; }
+.pencil-graphic .tool-tip::after { content:''; display:block; width:100%; height:5px; background:#333; position:absolute; bottom:0; left:0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+
+/* ERASER */
+.eraser-graphic { width: 30px; height: 90px; background: #e5e7eb; border-radius: 4px; box-shadow: inset 2px 0 5px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.15); transform: rotate(0deg); }
+.eraser-graphic .tool-body { width: 100%; height: 100%; background: #d1d5db; opacity: 0.3; }
+
+/* RULER */
+.ruler-graphic { width: 32px; height: 100px; background: #fbbf24; border-radius: 2px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); border: 1px solid #d97706; }
+.ruler-markings { width: 100%; height: 100%; background: repeating-linear-gradient(0deg, #92400e, #92400e 1px, transparent 1px, transparent 10px); opacity: 0.4; }
+
+/* Separator */
+.separator-vertical { width: 1px; height: 40px; background: #d1d5db; margin: 0 10px; opacity: 0.5; }
+
+/* Colors */
+.markup-colors {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.color-swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: var(--swatch-color);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { 
+    transform: scale(1.3); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-color: white;
+    outline: 2px solid #007aff;
+    outline-offset: 2px;
+}
+
+/* Dock Controls (Undo/Redo/Plus) */
+.dock-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.icon-btn:hover { background: #f3f4f6; }
+.icon-btn i { width: 18px; height: 18px; }
 
 

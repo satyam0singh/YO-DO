@@ -252,20 +252,33 @@ class LabelController {
     }
 
     toggleFilter(tagId, btn) {
-        if (this.activeTags.has(tagId)) {
-            this.activeTags.delete(tagId);
-            btn.classList.remove('active');
-        } else {
-            this.activeTags.add(tagId);
+        // User Request: "Act as search input"
+        // Behavior: Clicking chip -> Populates search bar -> Filters by text (and tag name)
+        
+        const tagName = btn.innerText.trim();
+        
+        // Clear strict ID filters to rely on search text (matches "searching notes" behavior)
+        this.activeTags.clear();
+        document.querySelectorAll('.filter-chip.active').forEach(b => b.classList.remove('active'));
+        
+        // Optional: Highlight this chip visually as "Active Search"
+        // But setSearch will handle the filtering.
+        // Let's just create a seamless search experience.
+        
+        if (window.setSearch) {
+            window.setSearch(tagName); 
+            // Note: setSearch updates input and calls filterGrid
+            
+            // Visual Polish: Highlight chip if it matches search
             btn.classList.add('active');
         }
         
         this.updateClearButton();
-        this.applyFilters();
     }
 
     updateClearButton() {
-        if (this.activeTags.size > 0) {
+        const searchInput = document.getElementById('search-input');
+        if ((this.activeTags.size > 0) || (searchInput && searchInput.value.trim() !== '')) {
             this.clearBtn.classList.add('visible');
         } else {
             this.clearBtn.classList.remove('visible');
@@ -275,8 +288,16 @@ class LabelController {
     clearFilters() {
         this.activeTags.clear();
         document.querySelectorAll('.filter-chip.active').forEach(btn => btn.classList.remove('active'));
+        
+        // Clear Search Input too
+        const searchInput = document.getElementById('search-input');
+        if(searchInput) {
+            searchInput.value = '';
+            // Trigger empty search to reset grid
+            if(window.filterGrid) window.filterGrid('');
+        }
+        
         this.updateClearButton();
-        this.applyFilters();
     }
 
     applyFilters() {

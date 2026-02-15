@@ -143,9 +143,13 @@ function resizeMasonryItem(item) {
     item.style.gridRowEnd = 'span ' + rowSpan;
 }
 
+/* 
+   MASONRY DISABLED 
+   Moved to CSS-only masonry via column-count for performance (LCP/CLS improvement).
+   Keeping function stub to prevent errors in other files calling it.
+*/
 function resizeAllMasonryItems() {
-    const allItems = document.querySelectorAll('.item-card');
-    allItems.forEach(resizeMasonryItem);
+    // No-op
 }
 
 // Export for other modules if needed (via window)

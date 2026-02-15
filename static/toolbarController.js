@@ -206,15 +206,66 @@ class ToolbarController {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ tag_name: name })
-        }).then(() => {
-            // Reload tags to show in UI (or optimistically append)
-            // For now, simple reload of grid/modal is safest
-             if(window.syncContent) window.syncContent(this.activeNoteId, 'tags', 'update'); // Mock sync
-             // Actually, just inserting active UI is better for "Native Feel"
-             // But existing system renders tags via Jinja. 
-             // Let's just reload for now to Ensure consistency.
-             window.location.reload(); 
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                 // Dynamic Update (No Reload)
+                 this.addTagToDOM(this.activeNoteId, data.tag);
+                 if(this.tagPopover) {
+                     this.tagPopover.classList.remove('active'); // Close popover
+                 }
+            }
         });
+    }
+
+    addTagToDOM(noteId, tag) {
+        // Helper to add chip to a card
+        const appendChip = (card) => {
+            if(!card) return;
+            let container = card.querySelector('.tags-container');
+            if(!container) {
+                // If container doesn't exist (e.g. empty content previously), append to content
+                const content = card.querySelector('.card-content');
+                if(content) {
+                    container = document.createElement('div');
+                    container.className = 'tags-container';
+                    content.appendChild(container);
+                }
+            }
+            
+            if(container && !container.querySelector(`.tag-chip[data-id="${tag.id}"]`)) {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.dataset.id = tag.id;
+                chip.innerText = tag.name;
+                chip.onclick = (e) => {
+                     e.stopPropagation(); 
+                     if(window.labelController) window.labelController.toggleFilter(tag.id, null); 
+                };
+                container.appendChild(chip);
+            }
+        };
+
+        // 1. Grid Card
+        const gridCard = document.querySelector(`.item-card[data-id="${noteId}"]`);
+        appendChip(gridCard);
+        
+        // 2. Modal Card
+        const modalContainer = document.getElementById('modal-card-container');
+        if(modalContainer) {
+            const modalCard = modalContainer.querySelector('.card');
+            // Check context or blindly add if we know activeID matches
+            if(modalCard) appendChip(modalCard);
+        }
+        
+        // 3. Ensure Label Bar has this tag (if new)
+        if(window.labelController && tag) {
+            const existingBtn = document.querySelector(`.filter-chip[data-id="${tag.id}"]`);
+            if(!existingBtn) window.labelController.renderChip(tag);
+        }
+
+        if(window.resizeAllMasonryItems) window.resizeAllMasonryItems();
     }
 }
 

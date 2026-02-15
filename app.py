@@ -1,10 +1,12 @@
 import os
+
 import json
 import uuid
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from PIL import Image
 from flask_login import login_user, login_required, logout_user, current_user
 from itsdangerous import URLSafeTimedSerializer
 
@@ -420,26 +422,49 @@ def add_media_to_note(note_id):
     if note.deleted: abort(403)
     
     if 'file' not in request.files: return jsonify({'status': 'error'}), 400
-    file = request.files['file']
-    if file.filename == '' or not allowed_file(file.filename): return jsonify({'status': 'error'}), 400
     
-    filename = secure_filename(file.filename)
-    unique_name = f"{uuid.uuid4().hex}_{filename}"
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
-    url = url_for('static', filename=f'uploads/{unique_name}')
-    
+    files = request.files.getlist('file')
+    if not files: return jsonify({'status': 'error'}), 400
+
     try:
         media = json.loads(note.media_json)
     except:
         media = []
-        
-    new_media_item = {'id': str(uuid.uuid4()), 'type': 'image', 'url': url}
-    media.append(new_media_item)
-    note.media_json = json.dumps(media)
     
+    added_items = []
+    
+    for file in files:
+        if file.filename == '' or not allowed_file(file.filename): continue
+        
+        filename = secure_filename(file.filename)
+        unique_name = f"{uuid.uuid4().hex}_{filename}"
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
+        file.save(file_path)
+        url = url_for('static', filename=f'uploads/{unique_name}')
+        
+        # Generate Thumbnail
+        thumb_unique_name = f"thumb_{unique_name}"
+        thumb_path = os.path.join(app.config['UPLOAD_FOLDER'], thumb_unique_name)
+        thumb_url = url # Fallback
+        
+        try:
+            with Image.open(file_path) as img:
+                # Convert to RGB if RGBA (for JPEG saving)
+                if img.mode in ('RGBA', 'P'): img = img.convert('RGB')
+                img.thumbnail((600, 600)) 
+                img.save(thumb_path, "JPEG", quality=75, optimize=True)
+            thumb_url = url_for('static', filename=f'uploads/{thumb_unique_name}')
+        except Exception as e:
+            print(f"Thumbnail error: {e}")
+
+        new_media_item = {'id': str(uuid.uuid4()), 'type': 'image', 'url': url, 'thumbnail_url': thumb_url}
+        media.append(new_media_item)
+        added_items.append(new_media_item)
+    
+    note.media_json = json.dumps(media)
     db.session.commit()
     
-    return jsonify({'status': 'success', 'media': new_media_item})
+    return jsonify({'status': 'success', 'media_list': added_items})
 
 @app.route('/upload', methods=['POST'])
 @login_required

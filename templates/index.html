@@ -85,12 +85,17 @@
                 <i data-lucide="pin" class="{{ 'filled' if item.pinned else '' }}"></i>
             </button>
 
+            <!-- Capture Outer Loop Index for Lazy Loading Logic -->
+            {% set outer_loop_index = loop.index %}
+
             {% if item.media %}
             <div class="card-media">
                 {% for m in item.media %}
                 <div class="media-item">
                     {% if m.type == 'image' %}
-                    <img src="{{ m.url }}" alt="Attachment" loading="lazy">
+                    <img src="{{ m.thumbnail_url if m.thumbnail_url else m.url }}" alt="Attachment"
+                        loading="{{ 'eager' if outer_loop_index <= 3 else 'lazy' }}" {% if outer_loop_index==1
+                        %}fetchpriority="high" {% endif %}>
                     {% elif m.type == 'video' %}
                     <div class="video-container">
                         <iframe src="{{ m.url }}" frameborder="0" allowfullscreen></iframe>
@@ -189,12 +194,7 @@
 <!-- Global Hidden Input for Edit Mode -->
 <input type="file" id="edit-file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" multiple>
 
-<!-- Drawing Canvas Modal (Overlay) -->
-<div id="drawing-modal" class="drawing-modal">
-    <div class="canvas-container">
-        <canvas id="drawing-canvas"></canvas>
-    </div>
-</div>
+
 </div>
 
 <!-- Create Label Modal -->
@@ -260,4 +260,122 @@
             });
     }
 </script>
+<!-- Drawing Modal (Restored) -->
+<div id="drawing-modal" class="drawing-modal">
+    <!-- Top Actions (Apple Style) -->
+    <div class="drawing-header">
+        <button class="btn-drawing-cancel" onclick="closeDrawingModal()">Cancel</button>
+        <div class="drawing-title">Markup</div>
+        <button id="btn-save-drawing" class="btn-drawing-done">Done</button>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="drawing-canvas"></canvas>
+
+    <!-- Bottom Markup Dock -->
+    <div class="markup-dock">
+        <!-- Left Controls (Undo/Redo) -->
+        <div class="dock-group left-controls">
+            <button class="icon-btn" id="btn-undo" title="Undo"><i data-lucide="undo-2"></i></button>
+            <button class="icon-btn" id="btn-redo" title="Redo"><i data-lucide="redo-2"></i></button>
+        </div>
+
+        <div class="separator-vertical"></div>
+
+        <div class="markup-tools">
+            <!-- Pen -->
+            <div class="tool-item active" data-tool="pen" title="Pen">
+                <div class="tool-graphic pen-graphic">
+                    <div class="tool-cap"></div>
+                    <div class="tool-barrel"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Marker (Highlighter) -->
+            <div class="tool-item" data-tool="marker" title="Highlighter">
+                <div class="tool-graphic marker-graphic">
+                    <div class="tool-cap"></div>
+                    <div class="tool-barrel"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Fine Tip (Sharpie) -->
+            <div class="tool-item" data-tool="finetip" title="Fine Tip">
+                <div class="tool-graphic finetip-graphic">
+                    <div class="tool-cap"></div>
+                    <div class="tool-barrel"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Crayon -->
+            <div class="tool-item" data-tool="crayon" title="Crayon">
+                <div class="tool-graphic crayon-graphic">
+                    <div class="tool-wrapper"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Calligraphy -->
+            <div class="tool-item" data-tool="calligraphy" title="Calligraphy">
+                <div class="tool-graphic calligraphy-graphic">
+                    <div class="tool-cap"></div>
+                    <div class="tool-barrel"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Watercolor -->
+            <div class="tool-item" data-tool="watercolor" title="Watercolor">
+                <div class="tool-graphic watercolor-graphic">
+                    <div class="tool-bristles"></div>
+                    <div class="tool-barrel"></div>
+                </div>
+            </div>
+
+            <!-- Pencil -->
+            <div class="tool-item" data-tool="pencil" title="Pencil">
+                <div class="tool-graphic pencil-graphic">
+                    <div class="tool-cap"></div>
+                    <div class="tool-barrel"></div>
+                    <div class="tool-tip"></div>
+                </div>
+            </div>
+
+            <!-- Eraser -->
+            <div class="tool-item" data-tool="eraser" title="Eraser">
+                <div class="tool-graphic eraser-graphic">
+                    <div class="tool-body"></div>
+                </div>
+            </div>
+            <!-- Ruler -->
+            <div class="tool-item" data-tool="ruler" title="Ruler">
+                <div class="tool-graphic ruler-graphic">
+                    <div class="ruler-markings"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="separator-vertical"></div>
+
+        <div class="markup-colors">
+            <button class="color-swatch active" style="--swatch-color: #1a1a1a" data-color="#1a1a1a"></button>
+            <button class="color-swatch" style="--swatch-color: #007aff" data-color="#007aff"></button>
+            <button class="color-swatch" style="--swatch-color: #34c759" data-color="#34c759"></button>
+            <button class="color-swatch" style="--swatch-color: #ffcc00" data-color="#ffcc00"></button>
+            <button class="color-swatch" style="--swatch-color: #ff3b30" data-color="#ff3b30"></button>
+            <button class="color-swatch" style="--swatch-color: #ffffff" data-color="#ffffff"></button>
+        </div>
+
+        <div class="separator-vertical"></div>
+
+        <!-- Right Controls (Plus/Menu) -->
+        <div class="dock-group right-controls">
+            <button class="icon-btn"><i data-lucide="plus"></i></button>
+            <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
+        </div>
+    </div>
+</div>
 {% endblock %}
